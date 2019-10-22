@@ -3,9 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "build-db": "bash createdb.sh",
+    "db-reset": "dropdb vendor_management;bash createdb.sh",
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
@@ -13,6 +16,7 @@
     "helmet": "^3.21.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "pg-promise": "^9.3.3"
+    "pg-promise": "^9.3.3",
+    "rand-token": "^0.4.0"
   }
 }
