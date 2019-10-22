@@ -57,6 +57,7 @@ router.post('/add_user', async function(req,res,next){
 *-------------------------------------------------
 */
 router.post('/login', async(req, res, next)=>{
+  console.log('ll')
   const {email, password} = req.body;
   let msg   
   const getUserQuery = `SELECT * FROM users WHERE user_email = $1`
@@ -74,22 +75,36 @@ router.post('/login', async(req, res, next)=>{
         msg,
         userInfo: {
           name:`${loginUser.user_fname} ${loginUser.user_lname}`, 
-          token: token
+          authToken: token, 
+          email: loginUser.user_email
         }
       })
       return
     } else{
-      msg = 'Either the email or PASSWORD, or both, is incorrect'
-      res.json(msg)
+      msg = 'Either the email or PASSWORD, or both, are incorrect'
+      res.json({msg})
     }
   }else{
-    msg = 'Either the EMAIL or password, or both, is incorrect.'
-    res.json({
-      msg,
-    })  
+    msg = 'Either the EMAIL or password, or both, are incorrect.'
+    res.json({msg})  
   }
 });
 
+/*
+*-------------------------------------------------
+** get token for verification 
+*-------------------------------------------------
+*/
+router.post('/getToken', async (req, res, next)=>{
+  let msg 
+  const getTokenQuery = `SELECT token FROM users WHERE user_email = $1`
+  const {email} = req.body
+  const token = await db.query(getTokenQuery, [email])
+  console.log('----+++++-----', token )
+  res.json({
+    token: token
+  })
+})
 
 
 
