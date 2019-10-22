@@ -51,16 +51,16 @@ router.post('/vendor-product', async(req, res, body)=>{
     const {productName, contractStartDate, contractLength, contractCancelLeadtime, vendorNameId, productSponsorId} = req.body
     const insertProductQuery = `
     INSERT INTO vendor_product 
-    (product_name, contract_start_date,contract_length, contract_cancel_leadtime, vendor_id,product_sponsor_id)
+    (product_name, contract_start_date,contract_length, contract_cancel_leadtime, vendor_id, product_sponsor_id)
     VALUES ($1,$2,$3,$4,$5,$6)
-    returning id
-    `
-    
-    const successProductInsert = await db.query(insertProductQuery,[productName, contractStartDate, contractLength, contractCancelLeadtime, vendorNameId, productSponsorId])
-    console.log('+++', successProductInsert)
-    
-  
-    
+    RETURNING id, product_name`
+    try{
+        const successProductInsert = await db.query(insertProductQuery,[productName, contractStartDate, contractLength, contractCancelLeadtime, vendorNameId, productSponsorId])
+        const vendorName = await db.query('SELECT vendor_name FROM vendor_info WHERE id = $1', [vendorNameId])
+        res.json(`Success! ${vendorName[0].vendor_name} ${successProductInsert[0].product_name} Was added.`)
+    } catch{
+        res.json('Something went wrong.')
+    }
 })
 
 module.exports = router;
