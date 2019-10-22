@@ -51,10 +51,44 @@ router.post('/add_user', async function(req,res,next){
     return
   }
 });
-
+/*
+*-------------------------------------------------
+** Login and return token 
+*-------------------------------------------------
+*/
 router.post('/login', async(req, res, next)=>{
-  res.json('hello')
-})
+  const {email, password} = req.body;
+  let msg   
+  const getUserQuery = `SELECT * FROM users WHERE user_email = $1`
+  //check if provided email exists 
+  const checkUser = await db.query(getUserQuery, [email])
+  if(checkUser.length>0){
+  //check if password is correct 
+    const loginUser = checkUser[0];
+    const validPass = bcrypt.compareSync(password, loginUser.password);
+    if(validPass){
+      msg = 'Success! You\'ve been loged in'
+      const token = randToken.uid(50)
+      db.none(`UPDATE users SET token = $1 WHERE user_email = $2`, [token, loginUser.user_email])
+      res.json({
+        msg,
+        userInfo: {
+          name:`${loginUser.user_fname} ${loginUser.user_lname}`, 
+          token: token
+        }
+      })
+      return
+    } else{
+      msg = 'Either the email or PASSWORD, or both, is incorrect'
+      res.json(msg)
+    }
+  }else{
+    msg = 'Either the EMAIL or password, or both, is incorrect.'
+    res.json({
+      msg,
+    })  
+  }
+});
 
 
 
